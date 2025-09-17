@@ -1,0 +1,70 @@
+name: CI/CD Vue.js
+
+# Déclenche le workflow à chaque push ou pull request sur la branche main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest # Utilise une machine virtuelle Ubuntu
+
+    steps:
+      # 1. Récupère le code source du dépôt
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installe Node.js (version 20)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Met à jour npm à la dernière version
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      # 4. Installe les dépendances du projet
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. Lance les tests unitaires (si présents)
+      - name: Run tests
+        run: npm run test
+
+      # 6. Build le projet pour la production
+      - name: Build project
+        run: npm run build
+
+      # 7. Archive les fichiers de build comme artefact
+      - name: Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist/
+
+  # Exemple de job de déploiement (à adapter selon ta cible)
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build-and-test # Lance ce job seulement si le build & test réussit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+          path: dist/
+
+      # Déploie sur GitHub Pages (nécessite configuration du repo)
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: dist
