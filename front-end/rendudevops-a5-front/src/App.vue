@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import { computed , onMounted} from 'vue'
 import Vote from './components/Vote.vue' 
+// Get all vote data http://localhost:7071/api/GetAllVoteData
 
 // Props
 const props = defineProps({
@@ -19,6 +20,17 @@ const props = defineProps({
 const total = computed(() => Math.max(0, Number(props.yes) + Number(props.no)))
 const yesPct = computed(() => total.value === 0 ? 0 : Math.round((props.yes / total.value) * 100))
 const noPct = computed(() => total.value === 0 ? 0 : 100 - yesPct.value)
+
+// GET
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:7071/api/GetAllVoteData')
+    const data = await response.json()
+    console.log('Résultat de la requête GET :', data)
+  } catch (error) {
+    console.error('Erreur lors de la requête GET :', error)
+  }
+})
 </script>
 
 <template>
@@ -70,6 +82,7 @@ const noPct = computed(() => total.value === 0 ? 0 : 100 - yesPct.value)
     <p class="vote-note" v-if="props.note">{{ props.note }}</p>
   </div>
 </template>
+
 
 <style scoped>
 .vote-popularity {
