@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import Vote from './components/Vote.vue' 
 
 // Props
 const props = defineProps({
@@ -57,6 +58,13 @@ const noPct = computed(() => total.value === 0 ? 0 : 100 - yesPct.value)
           role="progressbar"
           :aria-label="`Pourcentage Non: ${noPct}%`"></div>
       </div>
+    </div>
+    <div>
+      <h2>Voter</h2>
+      <Vote />
+    </div>
+    <div>
+      <h2>Résultats des votes</h2>
     </div>
 
     <p class="vote-note" v-if="props.note">{{ props.note }}</p>
@@ -119,7 +127,7 @@ const noPct = computed(() => total.value === 0 ? 0 : 100 - yesPct.value)
   font-size: 0.85rem;
   color: #888;
 }
-h1, p {
+h1, p , h2{
     color: #444;
     
 }
