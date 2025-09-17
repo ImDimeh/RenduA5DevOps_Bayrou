@@ -1,13 +1,14 @@
 <script setup>
-import { computed , onMounted} from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Vote from './components/Vote.vue' 
-// Get all vote data http://localhost:7071/api/GetAllVoteData
+import VoteListe from './components/VoteListe.vue'
 
-// Props
+// Tableau réactif des votes récupérés depuis l’API
+const votes = ref([])
+
+// Props "question" et autres personnalisations
 const props = defineProps({
   question: { type: String, default: "Est-ce que Bayrou est populaire ?" },
-  yes: { type: Number, default: 15 },
-  no: { type: Number, default: 25 },
   showValues: { type: Boolean, default: true },
   colors: {
     type: Object,
@@ -16,22 +17,38 @@ const props = defineProps({
   note: { type: String, default: '' }
 })
 
-// Calculs
-const total = computed(() => Math.max(0, Number(props.yes) + Number(props.no)))
-const yesPct = computed(() => total.value === 0 ? 0 : Math.round((props.yes / total.value) * 100))
-const noPct = computed(() => total.value === 0 ? 0 : 100 - yesPct.value)
+// Calcul du nombre de Oui et Non
+const yesCount = computed(() =>
+  votes.value.filter(v => v.resultat_vote === "Oui" || v.resultat_vote === "oui").length
+)
 
-// GET
+const noCount = computed(() =>
+  votes.value.filter(v => v.resultat_vote === "non" || v.resultat_vote === "Non" ).length
+)
+
+// Pourcentage Oui/Non
+const total = computed(() => yesCount.value + noCount.value)
+const yesPct = computed(() =>
+  total.value === 0 ? 0 : Math.round((yesCount.value / total.value) * 100)
+)
+const noPct = computed(() =>
+  total.value === 0 ? 0 : 100 - yesPct.value
+)
+
+// Récupération des votes depuis l’API
 onMounted(async () => {
   try {
     const response = await fetch('http://localhost:7071/api/GetAllVoteData')
     const data = await response.json()
-    console.log('Résultat de la requête GET :', data)
+    console.log('Réponse brute:', data)
+    votes.value = data.votes // <-- affectation des données
+    console.log('Votes:', votes.value)
   } catch (error) {
     console.error('Erreur lors de la requête GET :', error)
   }
 })
 </script>
+
 
 <template>
   <div class="vote-popularity">
@@ -77,6 +94,7 @@ onMounted(async () => {
     </div>
     <div>
       <h2>Résultats des votes</h2>
+      <VoteListe></VoteListe>
     </div>
 
     <p class="vote-note" v-if="props.note">{{ props.note }}</p>
