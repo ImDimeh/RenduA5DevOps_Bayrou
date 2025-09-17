@@ -29,6 +29,7 @@ jobs:
 
       # 4. Installe les dépendances du projet
       - name: Install dependencies
+        working-directory: ./front-end/rendudevops-a5-front
         run: npm ci
 
       # 5. Lance les tests unitaires (si présents)
@@ -37,6 +38,7 @@ jobs:
 
       # 6. Build le projet pour la production
       - name: Build project
+        working-directory: ./front-end/rendudevops-a5-front
         run: npm run build
 
       # 7. Archive les fichiers de build comme artefact
