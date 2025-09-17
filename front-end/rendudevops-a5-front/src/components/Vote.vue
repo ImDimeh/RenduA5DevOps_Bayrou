@@ -1,3 +1,47 @@
+<script setup>
+import { ref } from 'vue'
+
+const nom = ref('')
+const prenom = ref('')
+const mail = ref('')
+const reponse = ref('')
+const message = ref('')
+
+async function submitForm() {
+  const payload = {
+    nom: nom.value,
+    prenom: prenom.value,
+    mail: mail.value,
+    resultat_vote: reponse.value
+  }
+
+  try {
+    const response = await fetch('http://localhost:7071/api/postVote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    const result = await response.json()
+    if (response.ok) {
+      message.value = "Votre vote a bien été enregistré !"
+      // Optionnel : reset le formulaire
+      nom.value = ''
+      prenom.value = ''
+      mail.value = ''
+      reponse.value = ''
+    } else {
+      message.value = result.error || "Erreur lors de l'enregistrement du vote."
+    }
+    console.log('Réponse API:', result)
+  } catch (error) {
+    message.value = "Erreur réseau ou serveur."
+    console.error('Erreur POST:', error)
+  }
+}
+</script>
+
 <template>
   <form class="vote-form" @submit.prevent="submitForm">
     <div class="form-group">
@@ -26,28 +70,9 @@
       </div>
     </div>
     <button type="submit">Voter</button>
+    <p v-if="message" class="vote-message">{{ message }}</p>
   </form>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-
-const nom = ref('')
-const prenom = ref('')
-const mail = ref('')
-const reponse = ref('')
-
-function submitForm() {
-  // Traitement du formulaire (affichage console pour exemple)
-  console.log({
-    nom: nom.value,
-    prenom: prenom.value,
-    mail: mail.value,
-    reponse: reponse.value
-  })
-  // Tu peux ajouter ici l'envoi vers une API ou autre action
-}
-</script>
 
 <style scoped>
 .vote-form {
@@ -86,5 +111,10 @@ button {
 }
 button:hover {
   background: #128039;
+}
+.vote-message {
+  margin-top: 12px;
+  color: #128039;
+  font-size: 1rem;
 }
 </style>
