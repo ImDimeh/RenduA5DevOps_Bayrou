@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref } from 'vue'
 
 const nom = ref('')
@@ -35,6 +35,72 @@ async function submitForm() {
       message.value = result.error || "Erreur lors de l'enregistrement du vote."
     }
     console.log('Réponse API:', result)
+  } catch (error) {
+    message.value = "Erreur réseau ou serveur."
+    console.error('Erreur POST:', error)
+  }
+}
+</script> -->
+
+
+<script setup>
+import { ref } from 'vue'
+
+const nom = ref('')
+const prenom = ref('')
+const mail = ref('')
+const reponse = ref('')
+const message = ref('')
+
+// Fonction pour récupérer le tableau de votes depuis localStorage
+function getStoredVotes() {
+  const stored = localStorage.getItem('votes')
+  return stored ? JSON.parse(stored) : []
+}
+
+// Fonction pour sauvegarder le tableau de votes dans localStorage
+function saveVotesLocally(votes) {
+  localStorage.setItem('votes', JSON.stringify(votes))
+}
+
+async function submitForm() {
+  const payload = {
+    nom: nom.value,
+    prenom: prenom.value,
+    mail: mail.value,
+    resultat_vote: reponse.value
+  }
+
+  try {
+    // POST vers ton API
+    const response = await fetch('http://localhost:7071/api/postVote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    const result = await response.json()
+
+    if (response.ok) {
+      message.value = "Votre vote a bien été enregistré !"
+
+      // 1️⃣ Stocker localement
+      const votes = getStoredVotes()
+      votes.push(payload)  // Ajouter le nouveau vote
+      saveVotesLocally(votes)
+
+      // 2️⃣ Réinitialiser le formulaire
+      nom.value = ''
+      prenom.value = ''
+      mail.value = ''
+      reponse.value = ''
+    } else {
+      message.value = result.error || "Erreur lors de l'enregistrement du vote."
+    }
+
+    console.log('Réponse API:', result)
+    console.log('Votes stockés localement:', getStoredVotes())
   } catch (error) {
     message.value = "Erreur réseau ou serveur."
     console.error('Erreur POST:', error)
