@@ -17,23 +17,25 @@ const props = defineProps({
   note: { type: String, default: '' }
 })
 
-// Calcul du nombre de Oui et Non
-const yesCount = computed(() =>
-  votes.value.filter(v => v.resultat_vote === "Oui" || v.resultat_vote === "oui").length
-)
+// const votes = ref([]) // ton tableau de votes (peut rester vide si tu veux uniquement aléatoire)
 
-const noCount = computed(() =>
-  votes.value.filter(v => v.resultat_vote === "non" || v.resultat_vote === "Non" ).length
-)
+// Générer des nombres aléatoires pour le nombre de Oui et Non
+const yesCount = computed(() => Math.floor(Math.random() * 250)) // nombre aléatoire 0-249
+const noCount = computed(() => Math.floor(Math.random() * 250))  // nombre aléatoire 0-249
 
-// Pourcentage Oui/Non
+// Total et pourcentages
 const total = computed(() => yesCount.value + noCount.value)
+
 const yesPct = computed(() =>
-  total.value === Math.random() * 250 ? 0 : Math.round((yesCount.value / total.value) * 100)
+  total.value === 0 ? 0 : Math.round((yesCount.value / total.value) * 100)
 )
+
 const noPct = computed(() =>
-  total.value === Math.random() * 250 ? 0 : 100 - yesPct.value
+  total.value === 0 ? 0 : 100 - yesPct.value
 )
+
+console.log('Oui :', yesCount.value, 'Non :', noCount.value, 'Total :', total.value)
+console.log('Pourcentage Oui :', yesPct.value, '%', 'Pourcentage Non :', noPct.value, '%')
 
 // Récupération des votes depuis l’API
 onMounted(async () => {
