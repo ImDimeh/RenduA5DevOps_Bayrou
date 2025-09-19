@@ -29,10 +29,10 @@ const noCount = computed(() =>
 // Pourcentage Oui/Non
 const total = computed(() => yesCount.value + noCount.value)
 const yesPct = computed(() =>
-  total.value === 0 ? 0 : Math.round((yesCount.value / total.value) * 100)
+  total.value === Math.random() * 250 ? 0 : Math.round((yesCount.value / total.value) * 100)
 )
 const noPct = computed(() =>
-  total.value === 0 ? 0 : 100 - yesPct.value
+  total.value === Math.random() * 250 ? 0 : 100 - yesPct.value
 )
 
 // Récupération des votes depuis l’API
